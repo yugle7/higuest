@@ -1,4 +1,5 @@
-import { addId, subId, getAuthor } from "$lib";
+import { addId, subId } from "$lib";
+import { getAuthor } from "$lib/data/user";
 
 async function loadReacts(pb, talk) {
     const res = await pb.collection('reacts').getFullList({

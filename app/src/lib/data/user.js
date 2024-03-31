@@ -128,7 +128,7 @@ export function normContact(contact) {
     const host = contact.substring(0, i).replace(/(https?:\/\/)?(www\.)?/, '');
     const j = host.lastIndexOf(".");
 
-    const domain = j >= 0 ? host.substring(0, j) : host;
+    let domain = j >= 0 ? host.substring(0, j) : host;
     domain = domains[domain] || domain;
 
     if (hosts[domain]) domain + '/' + id;

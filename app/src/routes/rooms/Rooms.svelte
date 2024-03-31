@@ -3,8 +3,6 @@
 
 	export let rooms;
 	export let profile;
-
-	export let params;
 </script>
 
 {#if rooms.length > 0}

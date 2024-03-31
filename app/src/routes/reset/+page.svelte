@@ -1,5 +1,5 @@
 <script>
-	import { checkEmail } from '../signup/data';
+	import { checkEmail } from '$lib/data/user';
 	import { enhance } from '$app/forms';
 
 	export let form;

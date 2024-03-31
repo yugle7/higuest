@@ -1,4 +1,5 @@
-import { addId, getAuthor } from "$lib";
+import { addId } from "$lib";
+import { getAuthor } from "$lib/data/user";
 import { redirect } from "@sveltejs/kit";
 
 async function loadReacts(pb, talk_id) {
