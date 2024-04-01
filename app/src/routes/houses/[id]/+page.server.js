@@ -1,5 +1,4 @@
-import { addId, getAuthor } from "$lib";
-import { getCount } from "$lib/data/house";
+import { addId } from "$lib";
 import { createChat, getInviteLink } from "$lib/data/vk";
 
 async function loadReacts(pb, talk_id) {
