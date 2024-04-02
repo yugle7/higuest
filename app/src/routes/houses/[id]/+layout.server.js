@@ -1,5 +1,6 @@
 import { addId } from "$lib";
 import { error } from "@sveltejs/kit";
+import { setPhotos } from "$lib/data/photo";
 
 async function getReact(pb, profile_id, house_id) {
     const id = addId(house_id, profile_id);
@@ -15,9 +16,10 @@ async function getReact(pb, profile_id, house_id) {
 async function getReacts(pb, profile_id, house_id) {
     const reacts = {};
 
-    const id = addId(house_id, profile_id);
     try {
-        const res = await pb.collection('room_reacts').getFullList({ filter: `react_id="${id}"` });
+        const res = await pb.collection('room_reacts').getFullList({
+            filter: `house_id="${house_id}"&&profile_id="${profile_id}"`
+        });
         res.forEach(({ room_id, react }) => reacts[room_id] = react);
     } catch (err) {
         console.log(err.message);
@@ -29,7 +31,7 @@ async function loadHouse(pb, profile, id) {
     try {
         const res = await pb.collection('houses').getOne(id);
         if (profile) res.react = await getReact(pb, profile.id, id);
-        res.photos = res.photos.map((p, i) => ({ id: i, url: pb.files.getUrl(res, p) }));
+        setPhotos(pb)(res);
 
         return res;
 
@@ -44,10 +46,8 @@ async function loadRooms(pb, profile, house_id) {
 
     if (profile) {
         const reacts = await getReacts(pb, profile.id, house_id);
-        rooms.forEach(r => {
-            r.photos = r.photos.map((p, i) => ({ id: i, url: pb.files.getUrl(r, p) }));
-            r.react = reacts[r.id];
-        });
+        rooms.forEach(r => (r.react = reacts[r.id]));
+        rooms.forEach(setPhotos(pb));
     }
     return rooms;
 }

@@ -1,5 +1,6 @@
 import { addId } from "$lib";
 import { error } from "@sveltejs/kit";
+import { setPhotos } from "../../../lib/data/photo.js";
 
 async function getReact(pb, profile_id, room_id) {
     const id = addId(room_id, profile_id);
@@ -18,7 +19,7 @@ async function loadRoom(pb, profile, id) {
         const res = await pb.collection('rooms').getOne(id, { expand: 'house_id' });
         if (profile) res.react = await getReact(pb, profile.id, id);
 
-        res.photos = res.photos.map((p, i) => ({ id: i, url: pb.files.getUrl(res, p) }));
+        setPhotos(pb)(res);
         return res;
 
     } catch (err) {

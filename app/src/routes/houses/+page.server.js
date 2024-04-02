@@ -1,5 +1,6 @@
 import { addId } from '$lib';
 import { default_params } from '$lib/data/house';
+import { setPhotos } from '$lib/data/photo';
 
 async function loadReacts(pb, profile) {
     const res = await pb.collection('house_reacts').getFullList({
@@ -29,7 +30,7 @@ async function loadHouses(pb, profile, params) {
     if (profile) {
         const reacts = await loadReacts(pb, profile);
         if (reacts) houses.forEach(h => (h.react = reacts[h.id]));
-        houses.forEach(h => h.photos = h.photos.map((p, i) => ({ id: i, url: pb.files.getUrl(h, p) })));
+        houses.forEach(setPhotos(pb));
     }
 
     return houses;

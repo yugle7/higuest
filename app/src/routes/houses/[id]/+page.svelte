@@ -33,7 +33,7 @@
 
 {#if $screen}
 	{#if chat}
-		<Chat {chat} {rooms} {talk} {profile} />
+		<Chat {chat} {talk} {profile} />
 	{:else if house}
 		{#if edit}
 			<Close on:click={() => (edit = null)} />

@@ -1,28 +1,16 @@
 <script>
 	import { enhance } from '$app/forms';
-	import { pb, state, screen } from '$lib';
+	import { state, screen } from '$lib';
 
 	import House from '$lib/edit/house/House.svelte';
 
 	export let house;
 	export let rooms;
 
-	const { title, categories, about, cars, price, city, street, building, photos } = house;
+	$state = { ...house, rooms };
 
-	$state = {
-		title,
-		categories,
-		about,
-		rooms,
-		cars,
-		price,
-		city,
-		street,
-		building,
-		photos
-	};
-
-	let data = {};
+	let price;
+	let photo_ids;
 </script>
 
 <form
@@ -32,9 +20,9 @@
 	enctype="multipart/form-data"
 	use:enhance
 >
-	<input type="hidden" name="price" bind:value={data.price} />
-	<input type="hidden" name="rooms" bind:value={data.rooms} />
-	<input type="hidden" name="photos" bind:value={data.photos} />
+	<input type="hidden" name="price" bind:value={price} />
+	<input type="hidden" name="rooms" bind:value={rooms} />
+	<input type="hidden" name="photo_ids" bind:value={photo_ids} />
 
 	<House />
 
@@ -45,12 +33,11 @@
 		<button
 			class="button"
 			type="submit"
-			on:click={() =>
-				(data = {
-					rooms: JSON.stringify($state.rooms),
-					price: JSON.stringify($state.price),
-					photos: JSON.stringify($state.photos)
-				})}
+			on:click={() => {
+				rooms = JSON.stringify($state.rooms);
+				price = JSON.stringify($state.price);
+				photo_ids = JSON.stringify($state.photo_ids);
+			}}
 		>
 			Исправить
 		</button>

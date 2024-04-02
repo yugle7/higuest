@@ -12,7 +12,13 @@
 	$state = getRoom(room);
 </script>
 
-<form method="post" action="?/edit" class="col padding-20 gap-40 content-900" use:enhance>
+<form
+	method="post"
+	action="?/edit"
+	class="col padding-20 gap-40 content-900"
+	enctype="multipart/form-data"
+	use:enhance
+>
 	<Room />
 
 	<input type="hidden" name="data" bind:value={data} />

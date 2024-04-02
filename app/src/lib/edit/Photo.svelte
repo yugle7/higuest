@@ -1,6 +1,8 @@
 <script>
 	import { screen } from '$lib';
-	export let photo;
+
+	export let id;
+	export let src;
 
 	export let selected;
 	let overlapped;
@@ -15,7 +17,7 @@
 	on:mouseenter={() => (selected = true)}
 	on:mouseleave={() => (selected = false)}
 	draggable="auto"
-	id={photo.id}
+	{id}
 	on:drag
 	on:dragstart={(e) => {
 		e.dataTransfer.setDragImage(target, e.offsetX, e.offsetY);
@@ -32,7 +34,7 @@
 	class:overlapped
 	class:selected
 >
-	<img class="photo" src={photo.url} alt="" />
+	<img class="photo" {src} alt="" />
 
 	{#if !$screen}
 		<button class="top-right" class:hidden={!selected || dragged} on:click|preventDefault>

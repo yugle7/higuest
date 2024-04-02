@@ -81,42 +81,34 @@ export async function load({ parent, url, locals }) {
 }
 
 const deleteOrder = async (pb, order) => {
+    const { room_ids, check_in, check_out } = order;
     const actions = [];
 
-    for (const room_id of order.room_ids) {
-        try {
-            let { check_in } = await pb.collection('room_checks').getFirstListItem(
-                `room_id="${room_id}"&&check_out=${order.check_in}`, { sort: 'check_in' }
-            );
-            const id = addId(room_id, '0000000' + order.check_out);
-            const { check_out } = await pb.collection('room_checks').getOne(id);
-
-            while (check_in < order.check_out) {
-                const id = addId(room_id, '0000000' + check_in);
-                actions.push(pb.collection('room_checks').update(id, { check_out }));
-                check_in = getDate(check_in + 1);
-            }
-        } catch (err) {
-            console.log(err.message);
-        }
+    let date = check_in;
+    while (date < check_out) {
+        room_ids.forEach(room_id => actions.push(
+            pb.collection('checks').delete(addId(room_id, '0000000' + date))
+        ));
+        date = getDate(date + 1);
     }
     await Promise.all(actions);
 }
 
 const restoreOrder = async (pb, order) => {
+    const { room_ids, house_id, check_in, check_out } = order;
     const actions = [];
 
-    for (const room_id of order.room_ids) {
-        let { check_in } = await pb.collection('room_checks').getFirstListItem(
-            `room_id="${room_id}"&&check_out>${order.check_in}`, { sort: 'check_in' }
-        );
-        while (check_in < order.check_out) {
-            const id = addId(room_id, '0000000' + check_in);
-            actions.push(pb.collection('room_checks').update(id, {
-                check_out: Math.max(check_in, order.check_in)
-            }));
-            check_in = getDate(check_in + 1);
-        }
+    let date = check_in;
+    while (date < check_out) {
+        room_ids.forEach(room_id => actions.push(
+            pb.collection('checks').create({
+                id: addId(room_id, '0000000' + date),
+                room_id,
+                house_id,
+                date
+            })
+        ));
+        date = getDate(date + 1);
     }
     await Promise.all(actions);
 }

@@ -1,6 +1,4 @@
 <script>
-	import { pb } from '$lib';
-
 	import Text from '$lib/show/text/Text.svelte';
 	import Photos from '../Photos.svelte';
 	import Slides from '../Slides.svelte';
@@ -9,15 +7,12 @@
 	import Price from './Price.svelte';
 	import Guests from './Guests.svelte';
 	import ToReact from './ToReact.svelte';
-
-	import Phone from '$lib/show/user/Phone.svelte';
-	import Contacts from '$lib/show/user/Contacts.svelte';
+	import Contacts from './Contacts.svelte';
 
 	export let profile = null;
 	export let house;
 
-	const { about, phone, contacts } = house;
-	const photos = house.photos.map(({ id, url }) => url);
+	const { about, photos } = house;
 
 	let slide;
 </script>
@@ -42,9 +37,6 @@
 
 	<div class="row away">
 		<ToReact {profile} {house} />
-		<span class="row gap-15 center">
-			{#if phone}<Phone {phone} />{/if}
-			{#if contacts}<Contacts {contacts} />{/if}
-		</span>
+		<Contacts {house} />
 	</div>
 </div>

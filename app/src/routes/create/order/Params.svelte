@@ -6,7 +6,6 @@
 	import Guests from '$lib/edit/offer/Guests.svelte';
 
 	export let checked;
-	// $state = { ...default_params, ...$state };
 </script>
 
 <Guests />

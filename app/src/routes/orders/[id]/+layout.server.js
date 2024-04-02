@@ -1,9 +1,18 @@
 import { error } from "@sveltejs/kit";
-
+import { setPhotos } from "$lib/data/photo";
 
 async function loadOrder(pb, id) {
     try {
-        return await pb.collection('orders').getOne(id);
+        const res = await pb.collection('orders').getOne(id, { expand: 'house_id,room_ids' });
+
+        res.house = res.expand.house_id;
+        setPhotos(pb)(res.house);
+
+        res.rooms = res.expand.room_ids;
+        res.rooms.forEach(setPhotos(pb));
+
+        delete res.expand;
+        return res;
 
     } catch (err) {
         console.log(err.message);
@@ -18,7 +27,7 @@ export async function load({ params, locals }) {
     const order = await loadOrder(pb, params.id);
     const { house, house_id, rooms, room_ids, client, client_id } = order;
 
-    rooms.forEach((r, i) => r.id = room_ids[i]);
+        rooms.forEach((r, i) => r.id = room_ids[i]);
     house.id = house_id;
     client.id = client_id;
 

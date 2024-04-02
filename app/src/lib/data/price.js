@@ -3,9 +3,12 @@ import { getDate } from './time';
 
 export const getPrice = (check_in, check_out, price) => {
     let p = 0;
-    while (check_in < check_out) {
-        p += price[holidays[check_in] || 0];
-        check_in = getDate(check_in + 1);
+    for (let i = 1; i < price.length; i++) price[i] ||= price[i - 1];
+
+    let d = check_in;
+    while (d < check_out) {
+        p += price[holidays[d] || 0];
+        d = getDate(d + 1);
     }
     return p;
 }

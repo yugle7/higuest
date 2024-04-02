@@ -17,8 +17,6 @@
 		$state.price = sumPrice(check_in, check_out, rooms);
 
 		$state = $state;
-	} else {
-		$state.days = $state.price = 0;
 	}
 </script>
 
@@ -28,7 +26,7 @@
 		<span class="subtitle">{street + ' ' + building}</span>
 	</div>
 
-	{#if $state.days}
+	{#if $state.check_out}
 		<div class="col line-0">
 			<Price offer={$state} />
 			<Counts order={$state} />

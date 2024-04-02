@@ -4,10 +4,9 @@
 	import Slides from '../Slides.svelte';
 
 	export let room;
-	const { number, name, about, area, floor } = room;
+	const { number, photos, name, about, area, floor } = room;
 
 	let slide;
-	const photos = room.photos.map(({ url }) => url);
 </script>
 
 <div class="col gap-10">

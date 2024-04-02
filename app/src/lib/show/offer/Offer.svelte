@@ -13,7 +13,7 @@
 	let slide;
 	
 	let photos = [];
-	rooms.forEach((r) => (photos = [...photos, ...r.photos.map(({ url }) => url)]));
+	rooms.forEach((r) => (photos = [...photos, ...r.photos]));
 </script>
 
 <div class="col">

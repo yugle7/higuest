@@ -1,14 +1,14 @@
 import { redirect } from "@sveltejs/kit";
 import { sumPrice } from "$lib/data/price";
 import { setPhotos } from "$lib/data/photo";
+import { getDate } from "$lib/data/time";
+import { addId } from '$lib';
 
 const loadChecked = async (pb, rooms) => {
     const filter = rooms.map(({ id }) => `room_id="${id}"`).join('||');
 
-    const res = await pb.collection('room_checks').getFullList({
-        filter: `(${filter})&&check_in=check_out`
-    });
-    return new Set(res.map(({ check_in }) => check_in));
+    const res = await pb.collection('checks').getFullList({ filter });
+    return new Set(res.map(({ date }) => date));
 };
 
 const loadRooms = async (pb, room_ids, house_id) => {
@@ -35,17 +35,18 @@ export async function load({ locals, url }) {
 
 
 const addChecks = async (pb, order) => {
-    const { room_ids, check_in, check_out } = order;
+    const { room_ids, house_id, check_in, check_out } = order;
 
-    const filter = room_ids.map(id => `room_id="${id}"`).join('||');
-    const checks = await pb.collection('room_checks').getFullList({
-        filter: `(${filter})&&check_in<${check_out}&&check_out>${check_in}`
-    });
-    await Promise.all(
-        checks.map(({ id, check_in }) => pb.collection('room_checks').update(id, {
-            check_out: Math.max(order.check_in, check_in)
-        }))
-    );
+    const actions = [];
+
+    let date = check_in;
+    while (date < check_out) {
+        room_ids.forEach(room_id => actions.push(
+            pb.collection('checks').create({ id: addId(room_id, '0000000' + date), room_id, house_id, date })
+        ));
+        date = getDate(date + 1);
+    }
+    await Promise.all(actions);
 };
 
 const addRooms = async (pb, order) => {

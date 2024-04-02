@@ -9,7 +9,7 @@
 
 	let rooms;
 	let price;
-	let photos;
+	let photo_ids;
 
 	$state = {
 		categories: [],
@@ -38,10 +38,15 @@
 
 {#if $loaded}
 	<div class="page">
-		<form method="post" class="col content-900 padding-20 gap-40" enctype="multipart/form-data" use:enhance>
+		<form
+			method="post"
+			class="col content-900 padding-20 gap-40"
+			enctype="multipart/form-data"
+			use:enhance
+		>
 			<input type="hidden" name="price" bind:value={price} />
 			<input type="hidden" name="rooms" bind:value={rooms} />
-			<input type="hidden" name="photos" bind:value={photos} />
+			<input type="hidden" name="photo_ids" bind:value={photo_ids} />
 
 			<House />
 
@@ -57,7 +62,7 @@
 					on:click={() => {
 						rooms = JSON.stringify($state.rooms);
 						price = JSON.stringify($state.price);
-						photos = JSON.stringify($state.photos);
+						photo_ids = JSON.stringify($state.photo_ids);
 					}}
 				>
 					Создать

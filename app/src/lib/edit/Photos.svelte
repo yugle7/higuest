@@ -5,32 +5,34 @@
 	export let i = null;
 	const data = i == null ? $state : $state.rooms[i];
 
-	let photos = data.photos;
-	$: data.photos = photos.map(({ id }) => id);
+	data.photo_ids = [...Array(data.photos.length).keys()];
 
 	let inputs;
-
 	let src, dst, tap;
-	let id = photos.length;
 
 	const move = () => {
 		if (src == null || dst == null) return;
 
-		const i = photos.findIndex(({ id }) => id == src);
+		const i = data.photo_ids.findIndex((id) => id == src);
 		if (i < 0) return;
 
-		const j = photos.findIndex(({ id }) => id == dst);
+		const j = data.photo_ids.findIndex((id) => id == dst);
 		if (j < 0) return;
 
 		if (i < j) {
-			photos = [
-				...photos.slice(0, i),
-				...photos.slice(i + 1, j + 1),
-				photos[i],
-				...photos.slice(j + 1)
+			data.photo_ids = [
+				...data.photo_ids.slice(0, i),
+				...data.photo_ids.slice(i + 1, j + 1),
+				data.photo_ids[i],
+				...data.photo_ids.slice(j + 1)
 			];
 		} else if (j < i) {
-			photos = [...photos.slice(0, j), photos[i], ...photos.slice(j, i), ...photos.slice(i + 1)];
+			data.photo_ids = [
+				...data.photo_ids.slice(0, j),
+				data.photo_ids[i],
+				...data.photo_ids.slice(j, i),
+				...data.photo_ids.slice(i + 1)
+			];
 		}
 	};
 
@@ -38,9 +40,10 @@
 
 	const onChange = (e) => {
 		for (const f of e.target.files) {
-			photos.push({ id: id++, url: URL.createObjectURL(f) });
+			data.photo_ids.push(data.photos.length);
+			data.photos.push(URL.createObjectURL(f));
 		}
-		photos = photos;
+		data.photo_ids = data.photo_ids;
 	};
 </script>
 
@@ -54,18 +57,19 @@
 	}}
 	on:dragover={(e) => e.preventDefault()}
 >
-	{#each photos as photo (photo.id)}
+	{#each data.photo_ids as id (id)}
 		<Photo
-			{photo}
-			selected={src == photo.id}
-			on:drag={() => (src = photo.id)}
+			{id}
+			src={data.photos[id]}
+			selected={src == id}
+			on:drag={() => (src = id)}
 			on:dragover={(e) => e.preventDefault()}
 			on:touchstart={() => {
-				dst = photo.id;
+				dst = i;
 
 				if (tap == dst) {
 					if (Date.now() - tapTime < 300) {
-						photos = photos.filter(({ id }) => id !== dst);
+						data.photo_ids = data.photo_ids.filter((id) => id !== dst);
 						src = tap = tapTime = null;
 						return;
 					} else {
@@ -81,7 +85,7 @@
 				}
 			}}
 			on:dragend={() => (src = null)}
-			on:click={() => (photos = photos.filter(({ id }) => id !== photo.id))}
+			on:click={() => (data.photo_ids = data.photo_ids.filter((p) => p !== id))}
 		/>
 	{/each}
 </ul>

@@ -7,17 +7,23 @@
 	import Price from './Price.svelte';
 	import Guests from './Guests.svelte';
 	import ToReact from './ToReact.svelte';
+	
+	import Title from '../house/Title.svelte';
+	import Contacts from '../house/Contacts.svelte';
 
 	export let profile;
+	export let house = null;
 
 	export let room;
-	const { about } = room;
+	const { about, photos } = room;
 
 	let slide;
-	let photos = room.photos.map(({ id, url }) => url);
 </script>
 
 <div class="col gap-10">
+	{#if house}
+		<Title {house} />
+	{/if}
 	<Name {room} />
 
 	{#if photos.length}
@@ -37,5 +43,10 @@
 		<Text text={about} />
 	{/if}
 
-	<ToReact {profile} {room} />
+	<div class="row away">
+		<ToReact {profile} {room} />
+		{#if house}
+			<Contacts {house} />
+		{/if}
+	</div>
 </div>

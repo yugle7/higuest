@@ -6,12 +6,10 @@
 	import Slides from '../Slides.svelte';
 
 	export let room;
-	const { id, name, about, area, floor } = room;
+	const { id, photos, name, about, area, floor } = room;
 
 	const price = Math.min(...room.price.filter((p) => p > 0));
-
 	let slide;
-	let photos = room.photos.map(({ id, url }) => url);
 </script>
 
 <div class="col gap-10">

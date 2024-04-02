@@ -1,6 +1,7 @@
 import { addId } from "$lib";
 import { getAuthor } from "$lib/data/user";
 import { redirect } from "@sveltejs/kit";
+import { getDate } from "$lib/data/time";
 
 async function loadReacts(pb, talk_id) {
     const res = await pb.collection('reacts').getFullList({
@@ -90,11 +91,25 @@ export const actions = {
     edit: async ({ request, params, locals }) => {
         const pb = locals.pb;
         const profile = pb.authStore.model;
+        const { id } = params;
 
         const data = await request.formData();
-        const room = JSON.parse(data.get('data'));
-        await pb.collection('rooms').update(params.id, room);
+        console.log(data);
 
+        const room = JSON.parse(data.get('data'));
+        if (data.get('+')) {
+            room.photos = data.getAll('+');
+        } else {
+            delete room.photos;
+        }
+        const { photo_ids } = room;
+        delete room.photo_ids;
+
+        const { photos } = await pb.collection('rooms').update(id, room);
+
+        if (photo_ids.length !== photos.length || photo_ids.some((id, i) => id != i)) {
+            await pb.collection('rooms').update(id, { photos: photo_ids.map(id => photos[id]) });
+        }
         return { success: true };
     },
     order: async ({ request, params, locals }) => {
@@ -117,15 +132,19 @@ export const actions = {
         order.client = getAuthor(profile);
 
         const { check_in, check_out } = order;
-        const checks = await pb.collection('room_checks').getFullList({
-            filter: `room_id="${room_id}"&&check_in<${check_out}&&check_out>${check_in}`
-        })
-
-        await Promise.all(
-            checks.map(({ id, check_in }) => pb.collection('room_checks').update(id, {
-                check_out: Math.max(order.check_in, check_in)
-            }))
-        );
+        const actions = [];
+        
+        let date = check_in;
+        while (date < check_out) {
+            actions.push(pb.collection('checks').create({
+                id: addId(room_id, '0000000' + date),
+                room_id,
+                house_id,
+                date
+            }));
+            date = getDate(date + 1);
+        }
+        await Promise.all(actions);
 
         const { id } = await pb.collection('orders').create(order);
         throw redirect(303, `/orders/${id}`);

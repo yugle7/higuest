@@ -10,8 +10,6 @@
 
 	export let profile;
 
-	const { check_in, check_out, adults, children, kids, cars } = $state;
-
 	if (profile) ['phone', 'fullname', 'contacts'].forEach((k) => ($state[k] = $state[k] || profile[k]));
 	$: disabled = ['fullname', 'phone'].some((k) => !$state[k]);
 
@@ -30,7 +28,7 @@
 	<button
 		{disabled}
 		class="button"
-		on:click={() => (data = JSON.stringify({ check_in, check_out, adults, children, kids, cars }))}
+		on:click={() => (data = JSON.stringify($state))}
 	>
 		Далее
 	</button>

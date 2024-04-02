@@ -33,34 +33,31 @@ const getOffers = async (pb, params) => {
 
     params.days = getDays(check_in, check_out);
 
-    const filters = [`check_in=${check_in}`, `check_out>=${check_out}`];
+    const filters = [`date>=${check_in}`, `date<${check_out}`];
     if (house_id) filters.push(`house_id="${house_id}"`);
+    const res = await pb.collection('checks').getFullList({ filter: filters.join('&&') });
+    const room_ids = new Set(res.map(({ room_id }) => room_id));
 
-    const res = await pb.collection('room_checks').getFullList({
-        filter: filters.join('&&'),
-        expand: 'room_id'
-    });
-    const rooms = res.map(({ house_id, expand }) => {
-        const { room_id } = expand;
-        const room = room_id;
-
-        room.house.id = house_id;
-        delete room.house_id;
-
-        return room;
-    });
-
+    const filter = [...room_ids].map(({ room_id }) => `id!="${room_id}"`).join('&&');
+    const rooms = await pb.collection('rooms').getFullList({ filter });
     const houses = {};
 
-    rooms.forEach(({ house }) => houses[house.id] = { house, rooms: [] });
     rooms.forEach((r) => {
-        const { house, price } = r;
-        delete r.house;
+        const { house, house_id, price } = r;
 
+        house.id = house_id;
         r.price = getPrice(check_in, check_out, price);
-        houses[house.id].rooms.push(r);
+    });
+    rooms.forEach(({ house, house_id }) => houses[house_id] = { house, rooms: [] });
+    rooms.forEach((r) => {
+        const { house_id } = r;
+        delete r.house;
+        delete r.house_id;
+
+        houses[house_id].rooms.push(r);
     });
     rooms.forEach(setPhotos(pb));
+    console.log(houses);
 
     const offers = [];
     for (const { house, rooms } of Object.values(houses)) {
@@ -118,9 +115,9 @@ const setOffers = (params, house, rooms, offers) => {
 }
 
 const loadOffers = async (pb, params) => {
-    const { house_id, check_in } = params;
+    const { house_id, check_out } = params;
 
-    if (check_in) return await getOffers(pb, params);
+    if (check_out) return await getOffers(pb, params);
     return house_id ? await getRooms(pb, house_id) : await getHouses(pb);
 }
 
@@ -135,7 +132,6 @@ export async function load({ locals, url }) {
         if (value) params[key] = value;
     }
     for (const key of ['adults', 'children', 'kids', 'cars', 'check_in', 'check_out']) params[key] = +params[key];
-
 
     return {
         offers: loadOffers(pb, params),

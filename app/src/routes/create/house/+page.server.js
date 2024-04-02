@@ -3,8 +3,7 @@ import { redirect } from "@sveltejs/kit";
 import { getAuthor } from "$lib/data/user";
 import { getCount } from "$lib/data/house";
 import { createChat, getInviteLink } from "$lib/data/vk";
-
-const getPhotos = (room, photos) => room.photos.map(id => photos[id]);
+import { getPhotos } from "$lib/data/photo";
 
 export const actions = {
     default: async ({ request, locals }) => {
@@ -27,7 +26,7 @@ export const actions = {
             owner: getAuthor(profile),
             manager_ids: [profile.id],
             title: data.get('title'),
-            photos: JSON.parse(data.get('photos')).map(id => photos[id]),
+            photos: JSON.parse(data.get('photo_ids')).map(id => photos[id]),
             about: data.get('about'),
             city: data.get('city'),
             street: data.get('street'),

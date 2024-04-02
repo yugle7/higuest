@@ -78,22 +78,33 @@ export async function load({ parent, url, locals }) {
 
 
 const editRoom = async (pb, photos, room, house_id) => {
-    const { id } = room;
+    const { id, photo_ids } = room;
     delete room.id;
+    delete room.photo_ids;
+
+    if (photos.length) {
+        room.photos = photos;
+    } else {
+        delete room.photos;
+    }
+    room.house_id = house_id;
 
     let res;
     if (id) {
         res = await pb.collection('rooms').update(id, room);
     } else {
-        res = await pb.collection('rooms').create({ ...room, house_id });
+        res = await pb.collection('rooms').create(room);
     }
-    await pb.collection('rooms').update(id, { photos: photos.map(id => res.photos[id]) });
-
+    if (photo_ids.length !== res.photos.length || photo_ids.some((id, i) => id != i)) {
+        await pb.collection('rooms').update(id, { photos: photo_ids.map(id => res.photos[id]) });
+    }
 };
 
-const editHouse = async (pb, id, house, photos) => {
-    const res = await pb.collection('houses').update(id, house);
-    await pb.collection('houses').update(id, { photos: photos.map(id => res.photos[id]) });
+const editHouse = async (pb, photo_ids, id, house) => {
+    const { photos } = await pb.collection('houses').update(id, house);
+    if (photo_ids.length !== photos.length || photo_ids.some((id, i) => id != i)) {
+        await pb.collection('houses').update(id, { photos: photo_ids.map(id => photos[id]) });
+    }
 }
 
 export const actions = {
@@ -102,15 +113,16 @@ export const actions = {
         const profile = pb.authStore.model;
 
         const data = await request.formData();
+        console.log('data', data);
         const { id } = params;
 
         const categories = data.getAll('categories');
         if (categories.length === 0) return;
 
-        const rooms = JSON.parse(data.get('rooms'));
-        const photos = JSON.parse(data.get('photos'));
-
         const contacts = data.get('contacts');
+
+        const rooms = JSON.parse(data.get('rooms'));
+        const photo_ids = JSON.parse(data.get('photo_ids'));
 
         const house = {
             title: data.get('title'),
@@ -136,10 +148,9 @@ export const actions = {
                 house.vk = [chat_id, link];
             }
         }
-
         await Promise.all([
-            editHouse(pb, id, house, photos),
-            ...rooms.map((r, i) => editRoom(pb, JSON.parse(data.get(i + '+')), r, id))
+            editHouse(pb, photo_ids, id, house),
+            ...rooms.map((r, i) => editRoom(pb, data.getAll(i + '+'), r, id))
         ]);
 
         return { success: true };
