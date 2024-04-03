@@ -31,7 +31,7 @@
 
 	<div class="col">
 		<Price {order} />
-		<span class="subtitle row gap-10">
+		<span class="subtitle row gap-10 wrap">
 			{#each getCounts(order) as count}
 				<span>{count}</span>
 			{/each}

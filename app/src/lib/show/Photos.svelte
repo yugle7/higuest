@@ -62,7 +62,7 @@
 
 	.one {
 		padding-top: 10px;
-		padding-bottom: 10px;
+		padding-bottom: 2px;
 		overflow-x: auto;
 		margin-left: -20px;
 		margin-right: -20px;

@@ -7,7 +7,7 @@
 
 <a
 	{href}
-	class="center"
+	class="link center"
 	class:selected={$page.url.pathname === href}
 	on:click={() => ($screen = 'content')}
 >

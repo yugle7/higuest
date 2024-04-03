@@ -7,7 +7,7 @@
 	$: days = getDays(order);
 </script>
 
-<span class="subtitle row gap-10">
+<span class="subtitle row gap-10 wrap">
 	{#if rooms}<span>{rooms}</span>{/if}
 	{#each getGuests(order) as guest}
 		<span>{guest}</span>

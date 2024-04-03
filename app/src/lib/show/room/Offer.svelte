@@ -18,7 +18,7 @@
 			<h2 class="top line-1">
 				{name}
 			</h2>
-			<span class="subtitle row gap-10">
+			<span class="subtitle row gap-10 wrap">
 				{#each getGuests(room) as guest}
 					<span>{guest}</span>
 				{/each}
